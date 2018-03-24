@@ -17,13 +17,14 @@ public class Mandelbrot extends JPanel{
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	public  final int PREF_W = 800; 
-	public  final int PREF_H = 600;
-	private static final int PRECISION=255; // max 255
-	public  final double ZOOM=150.0;
+	public   int PREF_W = 800; 
+	public   int PREF_H = 600;
+	private static  int PRECISION=500; 
+	public  double ZOOM=100.0;
 	
 	public double zoom;
-	public int cen, ter;
+	public int precision;
+	public double cen, ter;
 	
 	Mandelbrot() throws HeadlessException {
 		super();
@@ -32,8 +33,9 @@ public class Mandelbrot extends JPanel{
 	private void init() {
 		
 		zoom=ZOOM;
-		cen=-2;
+		cen=0;
 		ter=0;
+		precision=(int)Math.floor(zoom*PRECISION/100);
 		
 		JFrame frame = new JFrame("Mandelbrot");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -60,35 +62,27 @@ public class Mandelbrot extends JPanel{
 		int p;
 		
 		
-		//colors
-		int c;
-		Color[] colors = new Color[PRECISION];
-		for (int i=0;i<PRECISION;i++){
-			c = 255-i*(255/PRECISION);
-			colors[i]= new Color(c,c,c);
-		}
-			
 		
 		// explores
-		for (int x=0;x<PREF_W;x++) {
-			for (int y=0;y<PREF_H;y++) { 
+		for (int x=0;x<getWidth();x++) {
+			for (int y=0;y<getHeight();y++) { 
 				zx=0.0;
 				zy=0.0;
 				
-				cx=(double)(x+cen*zoom-PREF_W/2)/zoom;
-				cy=(double)(y+ter*zoom-PREF_H/2)/zoom;
+				cx=(double)(x+cen*zoom-getWidth()/2)/zoom;
+				cy=(double)(y+ter*zoom-getHeight()/2)/zoom;
 				p=0;
-				while (zx*zx+zy*zy<4 && p<PRECISION) {
+				while (zx*zx+zy*zy<5 && p<precision) {
 					aux=zx*zx-zy*zy+cx;
 					zy=2.0*zx*zy+cy;
 					zx=aux;
 					p++;
 				}
 				
-				g2.setColor(colors[p-1]);
-				g2.drawLine(x, y,x, y);
+				if(p<precision)	g2.drawLine(x, y,x, y);
 			}
 		}
+		System.out.println("centro=("+cen+","+ter+") zoom="+zoom);
 		
 	}
 	
@@ -109,25 +103,38 @@ class MandelbrotListener implements MouseListener {
 	public void mouseClicked(MouseEvent e) {
 		if(e.getButton()==MouseEvent.BUTTON1) {
 			double zoom =((Mandelbrot)e.getComponent()).zoom;
-			int ant=((Mandelbrot)e.getComponent()).cen;
+			double ant=((Mandelbrot)e.getComponent()).cen;
+			double erior=((Mandelbrot)e.getComponent()).ter;
+			Mandelbrot M=((Mandelbrot)e.getComponent());
 			
-	//		double ncx=(double)(e.getX()+ant*zoom-PREF_W/2)/zoom;
+			double mx=(double)(e.getX()+ant*zoom-M.PREF_W/2)/zoom;
+			double my=(double)(e.getY()+erior*zoom-M.PREF_H/2)/zoom;
 
-			int erior=((Mandelbrot)e.getComponent()).ter;
-			e.getY();
-			((Mandelbrot)e.getComponent()).zoom=((Mandelbrot)e.getComponent()).zoom*2;
+			System.out.println("mouse ["+mx+","+my+"]");
+			M.zoom=M.zoom*2;
+			M.cen=mx;
+			M.ter=my;
 			((Mandelbrot)e.getComponent()).repaint();
 		} else if(e.getButton()==MouseEvent.BUTTON3) {
-			((Mandelbrot)e.getComponent()).cen=e.getX();
-			((Mandelbrot)e.getComponent()).ter=e.getY();
-			((Mandelbrot)e.getComponent()).zoom=((Mandelbrot)e.getComponent()).zoom/2;
-			((Mandelbrot)e.getComponent()).repaint();
+			double zoom =((Mandelbrot)e.getComponent()).zoom;
+			double ant=((Mandelbrot)e.getComponent()).cen;
+			double erior=((Mandelbrot)e.getComponent()).ter;
+			Mandelbrot M=((Mandelbrot)e.getComponent());
 			
+			double mx=(double)(e.getX()+ant*zoom-M.PREF_W/2)/zoom;
+			double my=(double)(e.getY()+erior*zoom-M.PREF_H/2)/zoom;
+
+			System.out.println("mouse ["+mx+","+my+"]");
+			M.zoom=M.zoom/2;
+			M.cen=mx;
+			M.ter=my;
+			((Mandelbrot)e.getComponent()).repaint();
 		} else {
 			((Mandelbrot)e.getComponent()).cen=0;
 			((Mandelbrot)e.getComponent()).ter=0;
 			((Mandelbrot)e.getComponent()).zoom=((Mandelbrot)e.getComponent()).ZOOM;
 			((Mandelbrot)e.getComponent()).repaint();
+			System.out.println("reset");
 			
 		}
 
