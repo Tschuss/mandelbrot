@@ -1,3 +1,4 @@
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -19,7 +20,7 @@ public class Mandelbrot extends JPanel{
 	private static final long serialVersionUID = 1L;
 	public   int PREF_W = 800; 
 	public   int PREF_H = 600;
-	private static  int PRECISION=500; 
+	private static  int PRECISION=255; 
 	public  double ZOOM=100.0;
 	
 	public double zoom;
@@ -61,7 +62,12 @@ public class Mandelbrot extends JPanel{
 		double zx, zy, aux, cx, cy;
 		int p;
 		
-		
+		Color[] colors = new Color[precision];
+		int rgb=0;
+		for (int i=0;i<precision;i++) {
+			rgb=255-i*255/precision;
+			colors[i]=new Color(rgb,rgb/2,rgb/3);
+		}
 		
 		// explores
 		for (int x=0;x<getWidth();x++) {
@@ -72,14 +78,17 @@ public class Mandelbrot extends JPanel{
 				cx=(double)(x+cen*zoom-getWidth()/2)/zoom;
 				cy=(double)(y+ter*zoom-getHeight()/2)/zoom;
 				p=0;
-				while (zx*zx+zy*zy<5 && p<precision) {
+				while (zx*zx+zy*zy<4 && p<precision) {
 					aux=zx*zx-zy*zy+cx;
 					zy=2.0*zx*zy+cy;
 					zx=aux;
 					p++;
 				}
 				
-				if(p<precision)	g2.drawLine(x, y,x, y);
+				
+				//if(p<precision)	g2.drawLine(x, y,x, y);// sin colores
+				g2.setColor(colors[p-1]);
+				g2.drawLine(x, y,x, y);
 			}
 		}
 		System.out.println("centro=("+cen+","+ter+") zoom="+zoom);
@@ -107,8 +116,8 @@ class MandelbrotListener implements MouseListener {
 			double erior=((Mandelbrot)e.getComponent()).ter;
 			Mandelbrot M=((Mandelbrot)e.getComponent());
 			
-			double mx=(double)(e.getX()+ant*zoom-M.PREF_W/2)/zoom;
-			double my=(double)(e.getY()+erior*zoom-M.PREF_H/2)/zoom;
+			double mx=(double)(e.getX()+ant*zoom-M.getWidth()/2)/zoom;
+			double my=(double)(e.getY()+erior*zoom-M.getHeight()/2)/zoom;
 
 			System.out.println("mouse ["+mx+","+my+"]");
 			M.zoom=M.zoom*2;
@@ -121,8 +130,8 @@ class MandelbrotListener implements MouseListener {
 			double erior=((Mandelbrot)e.getComponent()).ter;
 			Mandelbrot M=((Mandelbrot)e.getComponent());
 			
-			double mx=(double)(e.getX()+ant*zoom-M.PREF_W/2)/zoom;
-			double my=(double)(e.getY()+erior*zoom-M.PREF_H/2)/zoom;
+			double mx=(double)(e.getX()+ant*zoom-M.getWidth()/2)/zoom;
+			double my=(double)(e.getY()+erior*zoom-M.getHeight()/2)/zoom;
 
 			System.out.println("mouse ["+mx+","+my+"]");
 			M.zoom=M.zoom/2;
